@@ -1,4 +1,4 @@
-import pandas as pd
+from pandas import DataFrame
 def read_file(file_path:str):
     """
     Reads information from file and represents it in DataFrame
@@ -14,6 +14,6 @@ def read_file(file_path:str):
                 films.append((row[:ind1 - 1], row[ind1:ind2 + 1], row[ind2 + 1:]))
             else:
                 films.append((row[:ind1 - 1], row[ind1:ind2 + 1], row[ind3 + 1:]))
-        data = pd.DataFrame(films)
+        data = DataFrame(films)
         data.columns = ['Name', 'Year', 'Location']
     return data
