@@ -27,9 +27,9 @@ def read_file(file_path:str):
                 film = [row[:ind1 - 1], row[ind1:ind2 + 1], row[ind3 + 1:]]
             ind4 = film[2].find('(')
             if ind4 != -1:
-                film[2] = ' '.join(film[2][:ind4].split(' ')[-3:])
+                film[2] = ', '.join(film[2][:ind4].split(', ')[-3:])
             else:
-                film[2] = ' '.join(film[2].split(' ')[-3:])
+                film[2] = ', '.join(film[2].split(', ')[-3:])
             films.append(film)
         data = DataFrame(films)
         data.columns = ['Name', 'Year', 'Location']
@@ -69,7 +69,7 @@ def finding_distance_between_points(lat1, lat2, lon1, lon2):
 
     return radius * const2
 
-def find_distance_between_locations(lat1, lon1, data: DataFrame, year = 2016):
+def find_distance_between_locations(lat1, lon1, data: DataFrame, year):
     """
     Finds distance between two positions and returns
     possible places for the label
