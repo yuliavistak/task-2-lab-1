@@ -50,6 +50,7 @@ def add_coordinates_to_df(df:DataFrame, year) -> DataFrame:
     """
     df = df.loc[df['Year'] == f'({year})']
     df['Coordinates'] = [find_coordinates(city) for city in df['Location']]
+
     return df
 
 def finding_distance_between_points(lat1, lat2, lon1, lon2):
@@ -67,8 +68,3 @@ def finding_distance_between_points(lat1, lat2, lon1, lon2):
     const2 = 2 * atan2(sqrt(const1), sqrt(1 - const1))
 
     return radius * const2
-
-# def check_by_year(data: DataFrame, year: str) -> :
-#     """
-#     """
-print(add_coordinates_to_df(read_file('D:/UCU/UCU OP/Week 15/loctions(small).list'), args.year))
