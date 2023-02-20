@@ -59,7 +59,7 @@ def finding_distance_between_points(lat1, lat2, lon1, lon2):
     coordinates
     """
     radius = 6.3781 * 10**6 #approximate earth's radius
-    fi1 = lat1 * pi/180 # φ, λ in radians
+    fi1 = lat1 * pi/180
     fi2 = lat2 * pi/180
     dfi = (lat2-lat1) * pi/180
     dlambda = (lon2-lon1) * pi/180
