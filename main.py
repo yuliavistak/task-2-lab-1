@@ -1,3 +1,4 @@
+from pandas import DataFrame
 def read_file(file_path:str):
     """
     Reads information from file and represents it in DataFrame
