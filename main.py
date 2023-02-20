@@ -1,4 +1,5 @@
 import argparse
+from math import sin, cos, atan2, sqrt, pi
 from geopy.geocoders import Nominatim
 from pandas import DataFrame
 
@@ -49,3 +50,19 @@ def add_coordinates_to_df(df:DataFrame) -> DataFrame:
     """
     df['Coordinates'] = [find_coordinates(city) for city in df['Location']]
     return df
+
+def finding_distance_between_points(lat1, lat2, lon1, lon2):
+    """
+    Finds distance between two points in Earth by their
+    coordinates
+    """
+    radius = 6.3781 * 10**6 #approximate earth's radius
+    fi1 = lat1 * pi/180 # φ, λ in radians
+    fi2 = lat2 * pi/180
+    dfi = (lat2-lat1) * pi/180
+    dlambda = (lon2-lon1) * pi/180
+
+    const1 = (sin(dfi / 2) ** 2) + cos(fi1) * cos(fi2) * (sin(dlambda / 2) ** 2)
+    const2 = 2 * atan2(sqrt(const1), sqrt(1 - const1))
+
+    return radius * const2
