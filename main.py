@@ -1,3 +1,4 @@
+from geopy.geocoders import Nominatim
 from pandas import DataFrame
 def read_file(file_path:str):
     """
@@ -21,3 +22,10 @@ def read_file(file_path:str):
         data = DataFrame(films)
         data.columns = ['Name', 'Year', 'Location']
     return data
+def find_coordinates(city: str):
+    """
+    Finds coordinates of the needed city
+    """
+    geolocator = Nominatim(user_agent="map")
+    location = geolocator.geocode(city)
+    return location.latitude, location.longitude
