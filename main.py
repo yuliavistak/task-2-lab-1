@@ -27,9 +27,9 @@ def read_file(file_path:str):
                 film = [row[:ind1 - 1], row[ind1:ind2 + 1], row[ind3 + 1:]]
             ind4 = film[2].find('(')
             if ind4 != -1:
-                film[2] = ' '.join(film[2][:ind4].split(' ')[-3:])
+                film[2] = ', '.join(film[2][:ind4].split(', ')[-3:])
             else:
-                film[2] = ' '.join(film[2].split(' ')[-3:])
+                film[2] = ', '.join(film[2].split(', ')[-3:])
             films.append(film)
         data = DataFrame(films)
         data.columns = ['Name', 'Year', 'Location']
@@ -43,11 +43,12 @@ def find_coordinates(city: str):
     location = geolocator.geocode(city)
     return location.latitude, location.longitude
 
-def add_coordinates_to_df(df:DataFrame) -> DataFrame:
+def add_coordinates_to_df(df:DataFrame, year) -> DataFrame:
     """
     Finds coordinates of every location and saves them
     in a new column of DataFrame
     """
+    df = df.loc[df['Year'] == f'({year})']
     df['Coordinates'] = [find_coordinates(city) for city in df['Location']]
     return df
 
@@ -66,3 +67,8 @@ def finding_distance_between_points(lat1, lat2, lon1, lon2):
     const2 = 2 * atan2(sqrt(const1), sqrt(1 - const1))
 
     return radius * const2
+
+# def check_by_year(data: DataFrame, year: str) -> :
+#     """
+#     """
+print(add_coordinates_to_df(read_file('D:/UCU/UCU OP/Week 15/loctions(small).list'), args.year))
