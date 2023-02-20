@@ -43,12 +43,14 @@ def find_coordinates(city: str):
     location = geolocator.geocode(city)
     return location.latitude, location.longitude
 
-def add_coordinates_to_df(df:DataFrame) -> DataFrame:
+def add_coordinates_to_df(df:DataFrame, year) -> DataFrame:
     """
     Finds coordinates of every location and saves them
     in a new column of DataFrame
     """
+    df = df.loc[df['Year'] == f'({year})']
     df['Coordinates'] = [find_coordinates(city) for city in df['Location']]
+
     return df
 
 def finding_distance_between_points(lat1, lat2, lon1, lon2):
@@ -66,3 +68,14 @@ def finding_distance_between_points(lat1, lat2, lon1, lon2):
     const2 = 2 * atan2(sqrt(const1), sqrt(1 - const1))
 
     return radius * const2
+
+def find_distance_between_locations(lat1, lon1, data: DataFrame, year = 2016):
+    """
+    Finds distance between two positions and returns
+    possible places for the label
+    """
+    new_data = add_coordinates_to_df(data, year)
+    new_data['Distance'] = [finding_distance_between_points(float(lat1), float(i),\
+         float(lon1), float(j)) for i, j in new_data['Coordinates']]
+    new_data = new_data.sort_values(by = ['Distance'], ascending = True)[:10]
+    return new_data
