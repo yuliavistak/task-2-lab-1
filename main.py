@@ -1,5 +1,14 @@
+import argparse
 from geopy.geocoders import Nominatim
 from pandas import DataFrame
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('year')
+parser.add_argument('latitude')
+parser.add_argument('longtitude')
+args = parser.parse_args()
+
 def read_file(file_path:str):
     """
     Reads information from file and represents it in DataFrame
