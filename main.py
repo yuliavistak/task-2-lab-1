@@ -1,3 +1,4 @@
+from geopy.geocoders import Nominatim
 from pandas import DataFrame
 def read_file(file_path:str):
     """
@@ -14,10 +15,28 @@ def read_file(file_path:str):
                 film = [row[:ind1 - 1], row[ind1:ind2 + 1], row[ind2 + 1:]]
             else:
                 film = [row[:ind1 - 1], row[ind1:ind2 + 1], row[ind3 + 1:]]
-            if '(' in film[2]:
-                ind4 = film[2].find('(')
-                film[2] = film[2][:ind4]
+            ind4 = film[2].find('(')
+            if ind4 != -1:
+                film[2] = ' '.join(film[2][:ind4].split(' ')[-3:])
+            else:
+                film[2] = ' '.join(film[2].split(' ')[-3:])
             films.append(film)
         data = DataFrame(films)
         data.columns = ['Name', 'Year', 'Location']
     return data
+
+def find_coordinates(city: str):
+    """
+    Finds coordinates of the needed city
+    """
+    geolocator = Nominatim(user_agent="map")
+    location = geolocator.geocode(city)
+    return location.latitude, location.longitude
+
+def add_coordinates_to_df(df:DataFrame) -> DataFrame:
+    """
+    Finds coordinates of every location and saves them
+    in a new column of DataFrame
+    """
+    df['Coordinates'] = [find_coordinates(city) for city in df['Location']]
+    return df
