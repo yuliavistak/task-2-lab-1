@@ -1,3 +1,11 @@
+"""
+read_file
+find_coordinates
+add_coordinates_to_df
+finding_distance_between_points
+find_distance_between_locations
+create_map
+"""
 import argparse
 from math import sin, cos, atan2, sqrt, pi
 from geopy.geocoders import Nominatim
@@ -50,21 +58,21 @@ def find_coordinates(city: str) -> tuple:
     location = geolocator.geocode(city)
     return location.latitude, location.longitude
 
-def add_coordinates_to_df(df:DataFrame, year) -> DataFrame:
+def add_coordinates_to_df(data:DataFrame, year) -> DataFrame:
     """
     Finds coordinates of every location and saves them
     in a new column of DataFrame
     """
-    df = df.loc[df['Year'] == f'({year})']
+    data = data.loc[data['Year'] == f'({year})']
     coordinates = []
-    for city in df['Location']:
+    for city in data['Location']:
         try:
             coordinates.append(find_coordinates(city))
         except GeocoderUnavailable:
             continue
-    df['Coordinates'] = coordinates
+    data['Coordinates'] = coordinates
 
-    return df
+    return data
 
 def finding_distance_between_points(lat1, lat2, lon1, lon2):
     """
