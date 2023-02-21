@@ -10,6 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('year')
 parser.add_argument('latitude')
 parser.add_argument('longtitude')
+parser.add_argument('path_to_dataset')
 args = parser.parse_args()
 
 def read_file(file_path:str):
@@ -37,9 +38,13 @@ def read_file(file_path:str):
         data.columns = ['Name', 'Year', 'Location']
     return data
 
-def find_coordinates(city: str):
+def find_coordinates(city: str) -> tuple:
     """
     Finds coordinates of the needed city
+    >>> find_coordinates('New York, USA')
+    (40.7127281, -74.0060152)
+    >>> find_coordinates('Львів')
+    (49.841952, 24.0315921)
     """
     geolocator = Nominatim(user_agent="map")
     location = geolocator.geocode(city)
@@ -65,6 +70,10 @@ def finding_distance_between_points(lat1, lat2, lon1, lon2):
     """
     Finds distance between two points in Earth by their
     coordinates
+    >>> finding_distance_between_points(9.876, -4.879, 14.887, 77.987)
+    7187015.417835812
+    >>> finding_distance_between_points(98.768, 56.967, -6.886, 45.999)
+    4328522.022720598
     """
     radius = 6.3781 * 10**6 #approximate earth's radius
     fi1 = lat1 * pi/180
@@ -93,11 +102,10 @@ def create_map(data, lat1, lon1):
     """
     Creates a map with location tags
     """
-    final_map = folium.Map(location = [lat1, lon1], zoom_start = 3)
+    final_map = folium.Map(location = [lat1, lon1], zoom_start = 2)
     films_map_2 = folium.FeatureGroup(name="My location")
     label = folium.Marker(location = [lat1, lon1], popup = "You are here)")
     films_map_2.add_child(label)
-    # final_map.add_child(label)
     films_map_1 = folium.FeatureGroup(name="Films map")
     html = """<h4>Film information:</h4>
     Film name: {},<br>
@@ -112,9 +120,15 @@ def create_map(data, lat1, lon1):
         popup=folium.Popup(iframe), icon=folium.Icon(), zoom_start = 5))
 
     final_map.add_child(films_map_1)
-    # films_map_1 = folium.FeatureGroup(name="Films map", icon=folium.Icon())
     final_map.add_child(films_map_2)
     final_map.add_child(folium.LayerControl())
-    final_map.save('Map_of_nearest.html')
+    final_map.save('Map_of_nearest_locations.html')
 
-create_map(find_distance_between_locations(args.latitude, args.longtitude, read_file('D:/UCU/UCU OP/Week 15/loctions(small).list'), args.year), args.latitude, args.longtitude)
+if __name__ == '__main__':
+    cont = read_file(args.path_to_dataset)
+    data_with_distances = find_distance_between_locations(args.latitude, args.longtitude, \
+        cont, args.year)
+    create_map(data_with_distances, args.latitude, args.longtitude)
+
+    import doctest
+    print(doctest.testmod())
