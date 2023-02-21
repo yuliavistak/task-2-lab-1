@@ -1,7 +1,9 @@
 import argparse
 from math import sin, cos, atan2, sqrt, pi
 from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderUnavailable
 from pandas import DataFrame
+import folium
 
 
 parser = argparse.ArgumentParser()
@@ -22,9 +24,9 @@ def read_file(file_path:str):
             ind2 = row.find(')')
             ind3 = row.find('}')
             if ind3 == -1:
-                film = [row[:ind1 - 1], row[ind1:ind2 + 1], row[ind2 + 1:]]
+                film = [row[2:ind1 - 2], row[ind1:ind2 + 1], row[ind2 + 1:]]
             else:
-                film = [row[:ind1 - 1], row[ind1:ind2 + 1], row[ind3 + 1:]]
+                film = [row[2:ind1 - 2], row[ind1:ind2 + 1], row[ind3 + 1:]]
             ind4 = film[2].find('(')
             if ind4 != -1:
                 film[2] = ', '.join(film[2][:ind4].split(', ')[-3:])
@@ -49,7 +51,13 @@ def add_coordinates_to_df(df:DataFrame, year) -> DataFrame:
     in a new column of DataFrame
     """
     df = df.loc[df['Year'] == f'({year})']
-    df['Coordinates'] = [find_coordinates(city) for city in df['Location']]
+    coordinates = []
+    for city in df['Location']:
+        try:
+            coordinates.append(find_coordinates(city))
+        except GeocoderUnavailable:
+            continue
+    df['Coordinates'] = coordinates
 
     return df
 
@@ -75,7 +83,38 @@ def find_distance_between_locations(lat1, lon1, data: DataFrame, year):
     possible places for the label
     """
     new_data = add_coordinates_to_df(data, year)
-    new_data['Distance'] = [finding_distance_between_points(float(lat1), float(i),\
+    distances = [finding_distance_between_points(float(lat1), float(i),\
          float(lon1), float(j)) for i, j in new_data['Coordinates']]
+    new_data['Distance'] = distances
     new_data = new_data.sort_values(by = ['Distance'], ascending = True)[:10]
     return new_data
+
+def create_map(data, lat1, lon1):
+    """
+    Creates a map with location tags
+    """
+    final_map = folium.Map(location = [lat1, lon1], zoom_start = 3)
+    films_map_2 = folium.FeatureGroup(name="My location")
+    label = folium.Marker(location = [lat1, lon1], popup = "You are here)")
+    films_map_2.add_child(label)
+    # final_map.add_child(label)
+    films_map_1 = folium.FeatureGroup(name="Films map")
+    html = """<h4>Film information:</h4>
+    Film name: {},<br>
+    Year: {}
+    """
+    for crdnts in data['Coordinates']:
+        ind = data.index[data['Coordinates'] == crdnts].tolist()[0]
+        iframe = folium.IFrame(html=html.format(data['Name'].loc[ind], data['Year'].loc[ind]),
+                          width=300,
+                          height=100)
+        films_map_1.add_child(folium.Marker(location=[crdnts[0], crdnts[1]],\
+        popup=folium.Popup(iframe), icon=folium.Icon(), zoom_start = 5))
+
+    final_map.add_child(films_map_1)
+    # films_map_1 = folium.FeatureGroup(name="Films map", icon=folium.Icon())
+    final_map.add_child(films_map_2)
+    final_map.add_child(folium.LayerControl())
+    final_map.save('Map_of_nearest.html')
+
+create_map(find_distance_between_locations(args.latitude, args.longtitude, read_file('D:/UCU/UCU OP/Week 15/loctions(small).list'), args.year), args.latitude, args.longtitude)
